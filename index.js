@@ -14,7 +14,7 @@ const postRoute = require('./src/posts/router.post');
 
 app.use(cors(
     {
-        origin:process.env.FRONTED_ROUTE,
+        origin:JSON.parse(process.env.FRONTED_ROUTE),
         credentials:true
     }
 ))
@@ -27,7 +27,6 @@ app.use(function(req,res,next){
 
 app.use(express.json()) // body parse 
 app.use(cookieParse()) // cookie parse
-
 
 
 
