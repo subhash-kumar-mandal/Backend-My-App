@@ -84,10 +84,10 @@ async function LoginUser(req, res, next) {
                 { email: identifier }
             ]
         });
-        const id  = userfilter._id
+        const id = userfilter._id
 
         const posts = await postsSchema.find(id)
-     console.log(posts)
+        console.log(posts)
 
         if (!userfilter) {
             return next(new CustomError('enter vaild email & username', 400))
@@ -109,9 +109,14 @@ async function LoginUser(req, res, next) {
         );
 
 
-        
 
-        res.cookie('_token_', token).status(201).json({
+
+        res.cookie('_token_', token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            maxAge: 24 * 60 * 60 * 1000
+        }).status(201).json({
             success: true,
             message: "login Succesfully",
             user: userfilter
