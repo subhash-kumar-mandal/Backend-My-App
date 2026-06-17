@@ -14,7 +14,7 @@ const postRoute = require('./src/posts/router.post');
 
 app.use(cors(
     {
-        origin:'http://localhost:5173',
+        origin:process.env.FRONTED_ROUTE,
         credentials:true
     }
 ))
