@@ -6,15 +6,16 @@ const cloudinary = require('../../configs/cloudinary');
 const postSchema = require('./post.modal');
 const mongoose = require('mongoose');
 
+const commentSchema = require('../comments/comment.model');
 
 
 async function PostHandle(req, res, next) {
     try {
         const file = req.file;
         const id = req.userId
-     
-        
-    
+
+
+
         if (!req.body?.caption?.trim()) {
             return next(new CustomError('Capation', 400));
         };
@@ -29,8 +30,8 @@ async function PostHandle(req, res, next) {
                 folder: "posts"
             }
         );
-      
-        
+
+
 
         const user = await userModel.findById(id);
 
@@ -42,10 +43,10 @@ async function PostHandle(req, res, next) {
                 url: image.secure_url,
                 publicId: image.public_id
             },
-            height:image.height,
-            width:image.width
+            height: image.height,
+            width: image.width
         });
-      
+
         const postInfo = await post.populate(
             "authorId",
             "userName firstName lastName displayPicture"
@@ -71,7 +72,7 @@ async function PostHandle(req, res, next) {
         res.status(201).json({
             success: true,
             message: "Post Upload Succesfully",
-            post :postInfo
+            post: postInfo
         })
 
     } catch (err) {
@@ -88,15 +89,15 @@ async function DeletePost(req, res, next) {
 
         const id = req.userId;
         const { postId } = req.params;
-        
+
         if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(postId)) {
             return next(new CustomError("Something went wrong", 400));
         };
-        
+
 
         const post = await postSchema.findById(postId);
 
-       
+
 
         if (post.authorId.toString() !== id.toString()) {
             return next(new CustomError("Unauthorized", 401))
@@ -118,7 +119,10 @@ async function DeletePost(req, res, next) {
                     }
                 }
             ),
-            postSchema.findOneAndDelete(postId)
+            postSchema.findOneAndDelete(postId),
+            commentSchema.deleteMany({
+                postId: post._id
+            })
 
         ])
 
@@ -137,6 +141,52 @@ async function DeletePost(req, res, next) {
 
 
 
+async function PostLike(req, res, next) {
+    try {
+
+        const userId = req.userId;
+        const { postId } = req.params;
 
 
-module.exports = { PostHandle, DeletePost }
+        
+
+        const postFind = await postSchema.findById(postId);
+
+
+        if (!postFind) return next(new CustomError("Post is not Found", 400));
+
+        const alreadyLiked = postFind.likes.some(
+            id => id.toString() === userId
+        );
+
+        if (alreadyLiked) {
+            postFind.likes.pull(userId);
+        } else {
+            postFind.likes.push(userId);
+        }
+
+        await postFind.save();
+
+        const post = await postSchema
+                    .findById(postFind._id)
+                    .populate(
+                        "authorId",
+                        "userName firstName lastName displayPicture"
+                    );
+        
+
+        res.status(201).json({
+            success:true,
+            message:"Like ya disLike successFully",
+            post:post
+        })
+
+    } catch (err) {
+        next(err)
+    }
+}
+
+
+
+
+module.exports = { PostHandle, DeletePost, PostLike }

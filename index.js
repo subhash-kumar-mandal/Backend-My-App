@@ -11,6 +11,7 @@ const { Auth, AuthUserCheck } = require('./configs/authMD');
 const cloudinary = require('./configs/cloudinary');
 const profileRoute = require('./src/profileComplet/router.profile');
 const postRoute = require('./src/posts/router.post');
+const commentRoute = require('./src/comments/router.comment');
 
 app.use(cors(
     {
@@ -35,7 +36,8 @@ app.use(cookieParse()) // cookie parse
 app.use('/otp',handleOTPs);
 app.use('/user',userRoute);
 app.use('/profile',profileRoute);
-app.use('/post',postRoute)
+app.use('/post',postRoute);
+app.use('/comment',commentRoute)
 
 
 app.get('/',(req,res)=>{

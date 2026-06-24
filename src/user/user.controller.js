@@ -86,8 +86,7 @@ async function LoginUser(req, res, next) {
         });
         const id = userfilter._id
 
-        const posts = await postsSchema.find(id)
-        console.log(posts)
+        
 
         if (!userfilter) {
             return next(new CustomError('enter vaild email & username', 400))
@@ -108,7 +107,10 @@ async function LoginUser(req, res, next) {
             { expiresIn: "24h" }
         );
 
-
+         const posts = await postsSchema.find({authorId: id}).populate(
+           "authorId",
+           "userName firstName lastName displayPicture"
+        )
 
 
         res.cookie('_token_', token, {
@@ -119,7 +121,7 @@ async function LoginUser(req, res, next) {
         }).status(201).json({
             success: true,
             message: "login Succesfully",
-            user: userfilter
+            user: {...userfilter.toObject(),posts}
 
         });
 

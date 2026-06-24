@@ -4,7 +4,7 @@ const customError = require('../helpers/customError')
 const validator = require('validator')
 const JWT = require('jsonwebtoken');
 const userModel = require('../user/user.model');
-const postSchema  = require('../posts/post.modal')
+const postSchema = require('../posts/post.modal')
 
 const ProfileFill = async (req, res, next) => {
 
@@ -100,12 +100,12 @@ const UserDataGive = async (req, res, next) => {
         const id = req.userId;
 
         const user = await userModel.findById(id).select('-password -updatedAt -createdAt -__v');
-        
-        const posts = await postSchema.find({authorId: id}).populate(
-   "authorId",
-   "userName firstName lastName displayPicture"
-)
-        
+
+        const posts = await postSchema.find({ authorId: id }).populate(
+            "authorId",
+            "userName firstName lastName displayPicture"
+        )
+
 
         if (!user) {
             return res.status(400).json({
@@ -116,7 +116,7 @@ const UserDataGive = async (req, res, next) => {
 
         return res.status(201).json({
             success: true,
-            user:{...user.toObject(),posts}
+            user: { ...user.toObject(), posts }
         })
 
 
@@ -130,4 +130,4 @@ const UserDataGive = async (req, res, next) => {
 
 
 
-module.exports = { ProfileFill, ProfileEdit,UserDataGive }
+module.exports = { ProfileFill, ProfileEdit, UserDataGive }
